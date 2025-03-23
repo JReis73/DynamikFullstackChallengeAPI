@@ -18,13 +18,13 @@ namespace DynamikFullstackChallengeAPI.Controllers
             _context = context;
         }
 
-        [HttpPost]
+        [HttpPost("/devs")]
         public async Task<IActionResult> AddDeveloper(Developer developer)
         {
             Developer existingDev = await _context.Developers.Where(X => X.Name == developer.Name).FirstOrDefaultAsync();
+            
             if (existingDev == null && developer.NickName != null && developer.Name != null)
             {
-
                 //Poderíamos utilizar um dto de forma a pedir apenas os campos necessários
                 //O Id, ou um DateCreate, são exemplos de campos não necessários
                 _context.Developers.Add(developer);
@@ -39,10 +39,10 @@ namespace DynamikFullstackChallengeAPI.Controllers
             }
         }
 
-        [HttpGet("")]
+        [HttpGet("/devs")]
         public async Task<ActionResult<List<Developer>>> GetAllDevelopers()
         {
-            var developers = await _context.Developers.Take(20).ToListAsync(); //Top 20
+            var developers = await _context.Developers.Include(X => X.Stacks).Take(20).ToListAsync(); //Top 20
 
             Response.Headers.Add("Total-de-registos", developers.Count.ToString());
 
@@ -50,10 +50,23 @@ namespace DynamikFullstackChallengeAPI.Controllers
         }
 
         [HttpGet]
-        [Route("{id}")]
+        [Route("/dev/{id}")]
         public async Task<ActionResult<Developer>> GetDeveloperById([FromRoute] int id)
         {
-            var developer = await _context.Developers.FirstOrDefaultAsync(X => X.Id == id);
+            //O ideal seria ter uma tabela intermédia (n-n) para interligar os devs com as stacks
+
+            var developer = await _context.Developers.Include(X => X.Stacks).FirstOrDefaultAsync(X => X.Id == id);
+
+            //Abordagem LINQ
+
+            //var developer = await _context.Developers
+            //    .Where(X => X.Id == id)
+            //    .Select(Y => new
+            //    {
+            //        Y.Id,
+            //        Y.Name,
+            //        Stacks = _context.Stacks.Where(X => X.DeveloperId == Y.Id).ToList()
+            //    }).FirstOrDefaultAsync();
 
             if (developer is null)
                 return NotFound();
@@ -62,13 +75,15 @@ namespace DynamikFullstackChallengeAPI.Controllers
         }
 
         [HttpGet]
-        [Route("search")]
-        public async Task<ActionResult<List<Developer>>> SearchDevByTerm(string term = "")
+        [Route("/search")]
+        public async Task<ActionResult<List<Developer>>> SearchDevByTerm([FromQuery] string terms)
         {
-            var developers = await _context.Developers.Where(X => X.Stack.Contains(term)).ToListAsync();
-
-            if (developers.Count == 0)
-                return NotFound("There are no developers with the terms specified.");
+            var developers = await _context.Developers
+                .Where(X => X.Name.Contains(terms) || X.NickName.Contains(terms) ||
+                    X.Stacks.Any(Y => Y.Name.Contains(terms)))
+                .Include(X => X.Stacks)
+                .Take(20)
+                .ToListAsync();
 
             return Ok(developers);
         }

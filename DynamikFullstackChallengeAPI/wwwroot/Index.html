@@ -1,0 +1,161 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Frontend</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <h1>API Frontend</h1>
+
+    <button onclick="getAllDevelopers()">Get All Developers</button>
+    <button onclick="getDeveloperById()">Get Developer By ID</button>
+    <button onclick="searchStacks()">Search Developers by Stack</button>
+    <button onclick="showCreateForm()">Create New Developer</button>
+
+    <!-- Developer Creation Form (Hidden by Default) -->
+    <div id="createForm" style="display: none; margin-top: 20px;">
+        <input type="text" id="nameInput" placeholder="Enter Developer's Name" required><br><br>
+        <input type="text" id="nicknameInput" placeholder="Enter Developer's Nickname" required><br><br>
+        <input type="date" id="birthDateInput" required><br><br>
+
+        <div id="stacksContainer">
+            <label>Stacks:</label><br>
+            <button type="button" onclick="addStackInput()">+</button>
+        </div>
+
+        <button onclick="submitDeveloper()">Submit</button>
+        <button onclick="cancelCreateForm()" style="background-color: #dc3545;">Cancel</button>
+    </div>
+
+    <h2>Response:</h2>
+    <pre id="output">Click a button to see the response...</pre>
+
+    <script>
+        const API_URL = "https://localhost:7252";
+
+        function showCreateForm() {
+            document.getElementById("createForm").style.display = "block";
+        }
+
+        function cancelCreateForm() {
+            document.getElementById("createForm").style.display = "none";
+            document.getElementById("nameInput").value = "";
+            document.getElementById("nicknameInput").value = "";
+            document.getElementById("birthDateInput").value = "";
+
+            // Clear all stack inputs
+            document.getElementById("stacksContainer").innerHTML = `
+        <label>Stacks:</label><br>
+        <button type="button" onclick="addStackInput()">Add New Stack</button>
+    `;
+        }
+
+        function addStackInput() {
+            const container = document.getElementById("stacksContainer");
+            const input = document.createElement("input");
+            input.type = "text";
+            input.placeholder = "Enter Stack Name";
+            input.className = "stackInput";
+            container.appendChild(input);
+            container.appendChild(document.createElement("br"));
+        }
+
+        async function submitDeveloper() {
+            const name = document.getElementById("nameInput").value.trim();
+            const nickname = document.getElementById("nicknameInput").value.trim();
+            const birthDate = document.getElementById("birthDateInput").value;
+
+            if (!name || !nickname || !birthDate) {
+                alert("All fields are required!");
+                return;
+            }
+
+            // Get all stack values
+            const stackInputs = document.getElementsByClassName("stackInput");
+            const stacks = [];
+            for (let input of stackInputs) {
+                if (input.value.trim() !== "") {
+                    stacks.push({ name: input.value.trim() });
+                }
+            }
+
+            const developer = {
+                name,
+                nickName: nickname,
+                birth_Date: birthDate,
+                stacks
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/devs`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(developer)
+                });
+
+                const result = await response.json();
+                document.getElementById("output").textContent = JSON.stringify(result, null, 2);
+
+                cancelCreateForm(); // Hide form and clear fields after submission
+            } catch (error) {
+                console.error("Error creating developer:", error);
+                document.getElementById("output").textContent = "Error creating developer.";
+            }
+        }
+
+        async function getAllDevelopers() {
+            const response = await fetch(`${API_URL}/devs`);
+            const data = await response.json();
+            document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function getDeveloperById() {
+            const id = prompt("Enter Developer ID:");
+            if (!id) return;
+            const response = await fetch(`${API_URL}/dev/${id}`);
+            const data = await response.json();
+            document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function searchStacks() {
+            const searchTerm = prompt("Enter search term (e.g., 'node'):");
+            if (!searchTerm) return;
+            const response = await fetch(`${API_URL}/devs?terms=${searchTerm}`);
+            const data = await response.json();
+            document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function createDeveloper() {
+            const name = prompt("Enter Developer's Name:");
+            const nickname = prompt("Enter Developer's Nickname:");
+            const birthDate = prompt("Enter Birth Date (YYYY-MM-DD):");
+
+            if (!name || !nickname || !birthDate) {
+                alert("All fields are required!");
+                return;
+            }
+
+            const developer = {
+                name: name,
+                nickName: nickname,
+                birth_Date: birthDate
+            };
+
+            const response = await fetch(`${API_URL}/devs`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(developer)
+            });
+
+            const result = await response.json();
+            document.getElementById("output").textContent = JSON.stringify(result, null, 2);
+        }
+    </script>
+
+</body>
+</html>

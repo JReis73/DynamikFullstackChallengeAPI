@@ -1,0 +1,6 @@
+@DynamikFullstackChallengeAPI_HostAddress = http://localhost:5213
+
+GET {{DynamikFullstackChallengeAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

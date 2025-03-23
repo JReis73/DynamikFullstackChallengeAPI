@@ -17,14 +17,14 @@ namespace DynamikFullstackChallengeAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Developer>> AddDeveloper(Developer developer)
+        public async Task<IActionResult> AddDeveloper(Developer developer)
         {
             //Poderíamos utilizar um dto de forma a pedir apenas os campos necessários
             //O Id, ou um DateCreate, são exemplos de campos não necessários
             _context.Developers.Add(developer);
             await _context.SaveChangesAsync();
 
-            return Ok(await GetAllDevelopers());
+            return new ObjectResult(developer) { StatusCode = StatusCodes.Status201Created };
         }
 
         [HttpGet("")]
@@ -40,6 +40,7 @@ namespace DynamikFullstackChallengeAPI.Controllers
         public async Task<ActionResult<Developer>> GetDeveloper([FromRoute] int id)
         {
             var developer = await _context.Developers.FirstOrDefaultAsync(X => X.Id == id);
+
             if (developer is null)
                 return NotFound("Developer not found.");
 
@@ -48,7 +49,7 @@ namespace DynamikFullstackChallengeAPI.Controllers
 
         [HttpGet]
         [Route("search")]
-        public async Task<ActionResult<List<Developer>>> SearchDevByTerm([FromQuery] string term = "")
+        public async Task<ActionResult<List<Developer>>> SearchDevByTerm(string term = "")
         {
             var developers = await _context.Developers.Where(X => X.Stack.Contains(term)).ToListAsync();
 

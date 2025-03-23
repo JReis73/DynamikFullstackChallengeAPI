@@ -30,13 +30,13 @@ button {
         background-color: #0056b3;
     }
 
-    button:nth-child(2) { /* Cancel button */
-        background-color: #dc3545;
+    .post {
+        background-color: #49cc90;
     }
 
-        button:nth-child(2):hover {
-            background-color: #a71d2a;
-        }
+    .get {
+        background-color: #61affe;
+    }
 
 #stacksContainer {
     text-align: left;

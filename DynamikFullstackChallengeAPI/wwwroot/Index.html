@@ -10,12 +10,12 @@
 
     <h1>API Frontend</h1>
 
-    <button onclick="getAllDevelopers()">Get All Developers</button>
-    <button onclick="getDeveloperById()">Get Developer By ID</button>
-    <button onclick="searchStacks()">Search Developers by Stack</button>
-    <button onclick="showCreateForm()">Create New Developer</button>
+    <button class="get" onclick="getAllDevelopers()">Get All Developers</button>
+    <button class="get" onclick="getDeveloperById()">Get Developer By ID</button>
+    <button class="get" onclick="search()">Search Developers</button>
+    <button class="post" onclick="showCreateForm()">Create New Developer</button>
 
-    <!-- Developer Creation Form (Hidden by Default) -->
+    <!--Form-->
     <div id="createForm" style="display: none; margin-top: 20px;">
         <input type="text" id="nameInput" placeholder="Enter Developer's Name" required><br><br>
         <input type="text" id="nicknameInput" placeholder="Enter Developer's Nickname" required><br><br>
@@ -46,7 +46,7 @@
             document.getElementById("nicknameInput").value = "";
             document.getElementById("birthDateInput").value = "";
 
-            // Clear all stack inputs
+            
             document.getElementById("stacksContainer").innerHTML = `
         <label>Stacks:</label><br>
         <button type="button" onclick="addStackInput()">Add New Stack</button>
@@ -73,7 +73,7 @@
                 return;
             }
 
-            // Get all stack values
+            
             const stackInputs = document.getElementsByClassName("stackInput");
             const stacks = [];
             for (let input of stackInputs) {
@@ -99,7 +99,7 @@
                 const result = await response.json();
                 document.getElementById("output").textContent = JSON.stringify(result, null, 2);
 
-                cancelCreateForm(); // Hide form and clear fields after submission
+                cancelCreateForm(); // Esconde o form limpando campos
             } catch (error) {
                 console.error("Error creating developer:", error);
                 document.getElementById("output").textContent = "Error creating developer.";
@@ -120,10 +120,10 @@
             document.getElementById("output").textContent = JSON.stringify(data, null, 2);
         }
 
-        async function searchStacks() {
+        async function search() {
             const searchTerm = prompt("Enter search term (e.g., 'node'):");
             if (!searchTerm) return;
-            const response = await fetch(`${API_URL}/devs?terms=${searchTerm}`);
+            const response = await fetch(`${API_URL}/search?terms=${searchTerm}`);
             const data = await response.json();
             document.getElementById("output").textContent = JSON.stringify(data, null, 2);
         }

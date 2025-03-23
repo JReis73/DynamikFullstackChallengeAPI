@@ -41,7 +41,7 @@ namespace DynamikFullstackChallengeAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.PrimitiveCollection<string>("Stack")
+                    b.Property<string>("Stack")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

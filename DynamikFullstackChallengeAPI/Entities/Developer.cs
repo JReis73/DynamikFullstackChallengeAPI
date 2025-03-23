@@ -1,4 +1,6 @@
-﻿namespace DynamikFullstackChallengeAPI.Entities
+﻿using Microsoft.IdentityModel.Tokens;
+
+namespace DynamikFullstackChallengeAPI.Entities
 {
     public class Developer
     {
@@ -11,5 +13,7 @@
         public required DateTime Birth_Date { get; set; }
 
         public string? Stack { get; set; }
+
+        public List<Stack>? Stacks { get; set; }
     }
 }

@@ -1,5 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DynamikFullstackChallengeAPI.Entities
 {
@@ -7,13 +7,16 @@ namespace DynamikFullstackChallengeAPI.Entities
     {
         public int Id { get; set; }
 
+        [Required]
+        [MaxLength(32)]
         public required string NickName { get; set; }
 
+        [Required]
+        [MaxLength(100)]
         public required string Name { get; set; }
 
-        [DataType(DataType.Date)]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd}")]
-        public required DateTime Birth_Date { get; set; }
+        //DateOnly
+        public required DateOnly Birth_Date { get; set; }
 
         public List<Stack>? Stacks { get; set; }
     }
